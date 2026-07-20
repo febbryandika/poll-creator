@@ -1,0 +1,22 @@
+{
+  "name": "poll-creator",
+  "private": true,
+  "packageManager": "pnpm@10.34.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:generate": "pnpm --filter @poll-creator/db db:generate",
+    "db:migrate": "pnpm --filter @poll-creator/db db:migrate",
+    "db:studio": "pnpm --filter @poll-creator/db db:studio"
+  },
+  "devDependencies": {
+    "prettier": "catalog:"
+  }
+}
