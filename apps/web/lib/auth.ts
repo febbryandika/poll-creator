@@ -4,11 +4,8 @@ import { nextCookies } from 'better-auth/next-js'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
-import { createDb, schema } from '@poll-creator/db'
-
-// One module-scoped instance. postgres-js connects lazily, so constructing this
-// at import time opens no socket (safe for build/typecheck without DATABASE_URL).
-const db = createDb()
+import { schema } from '@poll-creator/db'
+import { db } from '@/lib/db'
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: 'pg', schema }),
