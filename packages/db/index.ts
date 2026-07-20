@@ -10,3 +10,4 @@ export function createDb(url = process.env.DATABASE_URL!) {
 
 export type DB = ReturnType<typeof createDb>
 export { schema }
+export type { Poll, NewPoll, Option, NewOption, Vote, NewVote } from './schema'
