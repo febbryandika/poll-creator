@@ -71,3 +71,5 @@ export type Option = typeof options.$inferSelect
 export type NewOption = typeof options.$inferInsert
 export type Vote = typeof votes.$inferSelect
 export type NewVote = typeof votes.$inferInsert
+
+export * from './auth-schema'
