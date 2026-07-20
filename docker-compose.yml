@@ -8,7 +8,8 @@ services:
       POSTGRES_PASSWORD: poll
       POSTGRES_DB: poll_creator
     ports:
-      - '5432:5432'
+      # Host port is overridable (compose reads a repo-root .env); default 5432.
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - poll-creator-pgdata:/var/lib/postgresql/data
     healthcheck:
