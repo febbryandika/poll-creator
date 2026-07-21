@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState, useTransition } from 'react'
 import { nanoid } from 'nanoid'
+import { toast } from 'sonner'
 import type { Option, Poll } from '@poll-creator/db/schema'
 import { useHydrated } from '@/lib/use-hydrated'
 import { Button } from '@/components/ui/button'
@@ -21,6 +23,19 @@ function hasVoted(shareCode: string) {
   }
 }
 
+function getSessionKey(): string {
+  try {
+    let key = localStorage.getItem(SESSION_KEY)
+    if (!key) {
+      key = nanoid(16)
+      localStorage.setItem(SESSION_KEY, key)
+    }
+    return key
+  } catch {
+    return nanoid(16) // private mode: ephemeral key, the vote still works this session
+  }
+}
+
 type Props = {
   poll: Pick<Poll, 'question' | 'shareCode'>
   options: Pick<Option, 'id' | 'text'>[]
@@ -28,22 +43,16 @@ type Props = {
 
 export function VoteCard({ poll, options }: Props) {
   const hydrated = useHydrated()
+  const router = useRouter()
   const [selected, setSelected] = useState('')
-  // Phase 6 stub flag. Phase 7 replaces this with the Hono POST + marker + redirect.
-  const [submitted, setSubmitted] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
-  // Ensure a stable per-browser session key exists (write-only; used when voting in Phase 7).
+  // Ensure a stable per-browser session key exists on mount.
   useEffect(() => {
-    try {
-      if (!localStorage.getItem(SESSION_KEY)) {
-        localStorage.setItem(SESSION_KEY, nanoid(16))
-      }
-    } catch {
-      // localStorage blocked (private mode) — degrade gracefully.
-    }
+    getSessionKey()
   }, [])
 
-  // Convenience marker (client-only): show results on return instead of the form.
+  // Client-only convenience: show results on return instead of the form.
   if (hydrated && hasVoted(poll.shareCode)) {
     return (
       <Card>
@@ -62,10 +71,40 @@ export function VoteCard({ poll, options }: Props) {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!selected) return
-    // Phase 7: POST `${NEXT_PUBLIC_API_URL}/vote` { shareCode, optionId, sessionKey };
-    // on success set localStorage.setItem(votedMarker(shareCode), '1') and push results.
-    setSubmitted(true) // Phase 6 stub: no write, no navigation.
+    if (!selected || isPending) return
+
+    startTransition(async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            shareCode: poll.shareCode,
+            optionId: selected,
+            sessionKey: getSessionKey(),
+          }),
+        })
+
+        if (!res.ok) {
+          // SPEC §10 shape: { error: { code, message } }. Covers 400/403/410 alike.
+          const body = (await res.json().catch(() => null)) as {
+            error?: { code?: string; message?: string }
+          } | null
+          toast.error(body?.error?.message ?? 'Something went wrong. Please try again.')
+          return
+        }
+
+        try {
+          localStorage.setItem(votedMarker(poll.shareCode), '1')
+        } catch {
+          // ignore private-mode write failure; the redirect still shows live results
+        }
+        router.push(`/p/${poll.shareCode}/results`)
+        router.refresh()
+      } catch {
+        toast.error('Network error — please check your connection and try again.')
+      }
+    })
   }
 
   return (
@@ -88,22 +127,9 @@ export function VoteCard({ poll, options }: Props) {
             ))}
           </RadioGroup>
 
-          <Button type="submit" className="w-full sm:w-auto" disabled={!selected || submitted}>
-            Vote
+          <Button type="submit" className="w-full sm:w-auto" disabled={!selected || isPending}>
+            {isPending ? 'Voting…' : 'Vote'}
           </Button>
-
-          {submitted && (
-            <p
-              role="status"
-              className="border-primary/30 bg-muted/50 text-muted-foreground rounded-lg border p-3 text-sm"
-            >
-              Live voting opens soon — check back shortly. You can still{' '}
-              <Link href={`/p/${poll.shareCode}/results`} className="underline underline-offset-4">
-                view results
-              </Link>
-              .
-            </p>
-          )}
         </form>
       </CardContent>
     </Card>
