@@ -10,7 +10,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "hono": "^4.12.0"
+    "@hono/zod-validator": "^0.9.0",
+    "@poll-creator/db": "workspace:*",
+    "@upstash/redis": "^1.38.0",
+    "hono": "^4.12.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
