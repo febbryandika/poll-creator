@@ -2,6 +2,7 @@
   "name": "@poll-creator/db",
   "version": "0.1.0",
   "private": true,
+  "description": "Shared Drizzle schema, Postgres client, and queries for the poll-creator apps.",
   "type": "module",
   "exports": {
     ".": "./index.ts",

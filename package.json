@@ -1,6 +1,7 @@
 {
   "name": "poll-creator",
   "private": true,
+  "description": "Real-time poll creator — Next.js + Hono monorepo with live SSE results over Redis pub/sub.",
   "packageManager": "pnpm@10.34.2",
   "engines": {
     "node": ">=20"

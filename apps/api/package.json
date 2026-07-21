@@ -2,6 +2,7 @@
   "name": "@poll-creator/api",
   "version": "0.1.0",
   "private": true,
+  "description": "Hono (Bun) public real-time API — vote + SSE live results over Redis pub/sub.",
   "type": "module",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
