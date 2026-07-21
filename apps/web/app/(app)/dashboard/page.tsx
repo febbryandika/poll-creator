@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Inbox, Plus } from 'lucide-react'
 import { listPollsByUser } from '@poll-creator/db/queries'
 import { requireSession } from '@/lib/auth'
 import { db } from '@/lib/db'
@@ -16,22 +17,31 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold tracking-tight">Your polls</h1>
         <Button asChild>
-          <Link href="/polls/new">New poll</Link>
+          <Link href="/polls/new">
+            <Plus />
+            New poll
+          </Link>
         </Button>
       </div>
 
       {polls.length === 0 ? (
         <Card>
-          <CardHeader>
-            <CardTitle>No polls yet</CardTitle>
-            <CardDescription>
-              Create your first poll to start collecting votes. You&apos;ll get a shareable link and
-              results that update live.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild>
-              <Link href="/polls/new">Create a poll</Link>
+          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
+            <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+              <Inbox className="size-6 text-muted-foreground" />
+            </div>
+            <div className="space-y-1">
+              <CardTitle>No polls yet</CardTitle>
+              <CardDescription className="max-w-sm">
+                Create your first poll to start collecting votes. You&apos;ll get a shareable link
+                and results that update live.
+              </CardDescription>
+            </div>
+            <Button asChild className="mt-1">
+              <Link href="/polls/new">
+                <Plus />
+                Create a poll
+              </Link>
             </Button>
           </CardContent>
         </Card>

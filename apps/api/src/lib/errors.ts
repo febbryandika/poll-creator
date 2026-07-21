@@ -6,6 +6,7 @@ export const ERROR_STATUS = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   POLL_EXPIRED: 410,
+  INTERNAL_ERROR: 500,
 } as const
 
 export type ErrorCode = keyof typeof ERROR_STATUS
