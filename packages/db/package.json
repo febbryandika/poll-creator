@@ -6,7 +6,8 @@
   "exports": {
     ".": "./index.ts",
     "./schema": "./schema.ts",
-    "./queries": "./queries.ts"
+    "./queries": "./queries.ts",
+    "./testing": "./testing.ts"
   },
   "scripts": {
     "lint": "eslint .",
@@ -28,6 +29,7 @@
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:"
+    "typescript-eslint": "catalog:",
+    "vitest": "catalog:"
   }
 }
