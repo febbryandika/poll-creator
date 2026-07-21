@@ -14,9 +14,15 @@
     "format:check": "prettier --check .",
     "db:generate": "pnpm --filter @poll-creator/db db:generate",
     "db:migrate": "pnpm --filter @poll-creator/db db:migrate",
-    "db:studio": "pnpm --filter @poll-creator/db db:studio"
+    "db:studio": "pnpm --filter @poll-creator/db db:studio",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
-    "prettier": "catalog:"
+    "@playwright/test": "catalog:",
+    "dotenv": "^17.0.0",
+    "prettier": "catalog:",
+    "vitest": "catalog:"
   }
 }
