@@ -12,8 +12,8 @@
   "dependencies": {
     "@hono/zod-validator": "^0.9.0",
     "@poll-creator/db": "workspace:*",
-    "@upstash/redis": "^1.38.0",
     "hono": "^4.12.0",
+    "ioredis": "^5.11.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {

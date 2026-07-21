@@ -40,7 +40,14 @@ export function LiveResultsChart({ data }: { data: ResultDatum[] }) {
               fontSize: 12,
             }}
           />
-          <Bar dataKey="votes" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+          {/* Animation off: with live data the enter-from-0 animation restarts on
+              every update and never settles — instant heights are correct + readable. */}
+          <Bar
+            dataKey="votes"
+            fill="var(--primary)"
+            radius={[6, 6, 0, 0]}
+            isAnimationActive={false}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
