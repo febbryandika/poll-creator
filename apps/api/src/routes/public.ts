@@ -8,6 +8,7 @@ import {
 } from '@poll-creator/db/queries'
 import { db } from '../lib/db'
 import { fail } from '../lib/errors'
+import { logger, serializeError } from '../lib/logger'
 import { publishCounts, subscribeToChannel } from '../lib/redis'
 import { voteJsonValidator } from '../lib/validation'
 
@@ -67,7 +68,10 @@ publicRoutes.get('/stream', async (c) => {
     // 2) Live updates. `message` is already the JSON string the publisher sent —
     //    forward it verbatim (the browser does the single JSON.parse).
     const unsubscribe = subscribeToChannel(`poll:${shareCode}`, (message) => {
-      stream.writeSSE({ data: message, event: 'counts' }).catch(() => {})
+      // Write failures here are expected on client disconnect — log at debug, never throw.
+      stream
+        .writeSSE({ data: message, event: 'counts' })
+        .catch((err) => logger.debug('sse_write_failed', { err: serializeError(err) }))
     })
 
     // 3) Core leak prevention: on disconnect drop this client's listener (which

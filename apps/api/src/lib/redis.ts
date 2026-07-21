@@ -1,4 +1,5 @@
 import { Redis } from 'ioredis'
+import { logger, serializeError } from './logger'
 
 const url = process.env.REDIS_URL
 
@@ -27,7 +28,9 @@ function getPublisher(): Redis | null {
       maxRetriesPerRequest: 1,
       retryStrategy,
     })
-    publisher.on('error', (err) => console.error('[redis] publisher error', err))
+    publisher.on('error', (err) =>
+      logger.error('redis_publisher_error', { err: serializeError(err) }),
+    )
   }
   return publisher
 }
@@ -36,7 +39,9 @@ function getSubscriber(): Redis | null {
   if (!url) return null
   if (!subscriber) {
     subscriber = new Redis(url, { lazyConnect: true, retryStrategy })
-    subscriber.on('error', (err) => console.error('[redis] subscriber error', err))
+    subscriber.on('error', (err) =>
+      logger.error('redis_subscriber_error', { err: serializeError(err) }),
+    )
     subscriber.on('message', (channel: string, message: string) => {
       const set = listeners.get(channel)
       if (!set) return
@@ -62,7 +67,10 @@ export async function publishCounts(
   try {
     await pub.publish(`poll:${shareCode}`, JSON.stringify(counts))
   } catch (err) {
-    console.error(`[redis] publish failed for poll:${shareCode}`, err)
+    logger.error('redis_publish_failed', {
+      channel: `poll:${shareCode}`,
+      err: serializeError(err),
+    })
   }
 }
 
@@ -84,7 +92,9 @@ export function subscribeToChannel(
   if (!set) {
     set = new Set()
     listeners.set(channel, set)
-    sub.subscribe(channel).catch((err) => console.error(`[redis] subscribe ${channel} failed`, err))
+    sub
+      .subscribe(channel)
+      .catch((err) => logger.error('redis_subscribe_failed', { channel, err: serializeError(err) }))
   }
   set.add(listener)
 
@@ -96,7 +106,9 @@ export function subscribeToChannel(
       listeners.delete(channel)
       sub
         .unsubscribe(channel)
-        .catch((err) => console.error(`[redis] unsubscribe ${channel} failed`, err))
+        .catch((err) =>
+          logger.error('redis_unsubscribe_failed', { channel, err: serializeError(err) }),
+        )
     }
   }
 }
